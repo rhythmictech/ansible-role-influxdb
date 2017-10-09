@@ -1,0 +1,62 @@
+---
+- name: ensure influxdb packages are installed
+  yum: name={{ item }} state=present
+  with_items:
+    - "influxdb{{ influxdb_version }}"
+    - mod_ssl
+    - collectd
+  tags: ['influxdb']
+
+- name: place influxdb config
+  template:
+    src: etc.influxdb.influxdb.conf.j2
+    dest: /etc/influxdb/influxdb.conf
+    owner: root
+    group: influxdb
+    mode: 0640
+  tags: ['influxdb']
+
+- name: ensure influxdb base dir exists
+  file: path="{{ influxdb_base_dir }}" state=directory owner="{{ influxdb_user }}" group="{{ influxdb_user }}"
+  tags: ['influxdb']
+
+- name: ensure backup dirs are present
+  file:
+    dest: "{{ item }}"
+    owner: "{{ influxdb_user }}"
+    group: "{{ influxdb_user }}"
+    mode: 0750
+    state: directory
+  with_items:
+    - "{{ influxdb_local_bak_dir }}"
+    - "{{ influxdb_filer_bak_dir }}"
+    - "{{ influxdb_bak_scripts_dir }}"
+  tags: ['influxdb']
+
+- name: place backup scripts
+  template:
+    src: "{{ item.src }}"
+    dest: "{{ item.dest }}"
+    owner: "{{ influxdb_user }}"
+    group: "{{ influxdb_user }}"
+    mode: 700
+  with_items: "{{ influxdb_bak_scripts }}"
+  when: influxdb_enable_backups|default(False)
+  tags: ['influxdb']
+
+- name: enable backup cron
+  cron:
+    name: "{{ item.name }}"
+    minute: "{{ item.minute }}"
+    hour: "{{ item.hour }}"
+    user: "{{ item.user }}"
+    job: "{{ item.job }}"
+    cron_file: "{{ item.cronfile }}"
+  with_items: "{{ influxdb_bak_crons }}"
+  when: influxdb_enable_backups|default(False)
+  tags: ['influxdb']
+
+- name: ensure influxdb is started and enabled
+  service: name=influxdb state=started enabled=yes
+  tags: ['influxdb']
+

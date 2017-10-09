@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# We back up to local disk and then sync to the filer to avoid any storage issues affecting influxdb itself
+# this script does that sync
+
+LOCKFILE_BACKUP={{ influxdb_lockfile_backup }}
+LOCKFILE_SYNC={{ influxdb_lockfile_sync }}
+
+## Conditional to check if backup is in progress, using lock file.
+if [[ -e LOCKFILE_BACKUP || -e $LOCKFILE_SYNC ]];
+then
+  echo "CAUTION -- influxdb backup operation in progress."
+  echo "exiting now, no changes have been made."
+  exit 1
+else
+  ## Create lock file and sync influx, remove lock when finished.
+  echo " "
+  echo "Attempting to sync influxdb backups to filer mount..."
+  echo " "
+  /bin/touch $LOCKFILE_SYNC
+  /usr/bin/rsync -asuv {{ influxdb_local_bak_dir }} {{ influxdb_filer_bak_dir }}
+
+  trap "{ /bin/rm -f $LOCKFILE_SYNC ; exit 255; }" EXIT
+  /bin/rm -f $LOCKFILE_SYNC
+  exit 0
+fi

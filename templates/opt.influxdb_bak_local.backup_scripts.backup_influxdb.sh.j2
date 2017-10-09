@@ -1,0 +1,29 @@
+#!/bin/bash
+# {{ ansible_managed }}
+
+## backup names
+BACKUP_NAME_INTERNAL=influxdb_backup_internal-`date +"%m-%d-%y"`
+BACKUP_NAME_DB=influxdb_backup_{{ influxdb_db_name }}-`date +"%m-%d-%y"`
+
+LOCKFILE_BACKUP={{ influxdb_lockfile_backup }}
+LOCKFILE_SYNC={{ influxdb_lockfile_sync }}
+
+## Conditional to check if backup is in progress, using lock file.
+if [[ -e $LOCKFILE_BACKUP || -e $LOCKFILE_SYNC ]];
+then
+  echo "CAUTION -- influxdb backup operation in progress."
+  echo "exiting now, no changes have been made."
+  exit 1
+else
+  ## Create lock file and backup influx, remove lock when finished.
+  echo " "
+  echo "Attempting to perform backup operation of influxdb..."
+  echo " "
+  /bin/touch $LOCKFILE_BACKUP
+  /usr/bin/influxd backup -database _internal {{ influxdb_local_bak_dir }}/_internal/$BACKUP_NAME_INTERNAL
+  /usr/bin/influxd backup -database {{ influxdb_db_name }} {{ influxdb_local_bak_dir }}/{{ influxdb_db_name }}/$BACKUP_NAME_DB
+
+  trap "{ rm -f $LOCKFILE_BACKUP ; exit 255; }" EXIT
+  /bin/rm $LOCKFILE_BACKUP
+  exit 0
+fi

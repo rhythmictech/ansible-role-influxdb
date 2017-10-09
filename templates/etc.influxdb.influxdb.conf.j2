@@ -1,0 +1,73 @@
+# {{ ansible_managed }}
+
+# Disable heartbeat back to influx
+reporting-disabled = true
+hostname = "localhost"
+bind-address = ":8088"
+
+[meta]
+  dir = "{{ influxdb_base_dir }}/meta"
+  retention-autocreate = true
+  logging-enabled = true
+  pprof-enabled = false
+  lease-duration = "1m0s"
+
+[data]
+  dir = "{{ influxdb_base_dir }}/data"
+  wal-dir = "{{ influxdb_base_dir }}/wal"
+  wal-enable-logging = true
+
+  engine = "tsm1"
+  query-log-enabled = true
+  cache-max-memory-size =      524288000
+  cache-snapshot-memory-size = 26214400
+  cache-snapshot-write-cold-duration = "1h0m0s"
+  compact-full-write-cold-duration = "24h0m0s"
+  max-points-per-block = 0
+  data-logging-enabled = true
+
+[cluster]
+  shard-writer-timeout = "5s"
+  write-timeout = "5s"
+
+[retention]
+  enabled = true
+  check-interval = "30m"
+
+[admin]
+  enabled = true
+  bind-address = ":8083"
+  https-enabled = false
+
+[monitor]
+  store-enabled = true
+  store-database = "_internal"
+  store-interval = "10s"
+
+[subscriber]
+  enabled = true
+
+[http]
+  enabled = true
+  bind-address = ":8086"
+  auth-enabled = false
+  log-enabled = true
+  write-tracing = false
+  pprof-enabled = false
+  max-row-limit = 10000
+
+[[collectd]]
+  enabled = true
+  bind-address = ":25826"
+  database = "{{ influxdb_db_name }}"
+  typesdb = "/usr/share/collectd/types.db"
+
+  batch-size = 1000
+  batch-pending = 5
+  batch-timeout = "1s"
+
+[continuous_queries]
+  log-enabled = true
+  enabled = true
+  run-interval = "1s"
+

@@ -1,0 +1,54 @@
+---
+
+
+# By default, we do not pin the version. You probably should.
+# Be sure to prefix the version with a "-". e.g.:
+# influxdb_version: -0.9.4.2-1
+influxdb_version:
+
+influxdb_base_dir: /opt/influxdb_base
+
+influxdb_user: influxdb
+
+influxdb_db_name: influxdb_stats
+
+influxdb_enable_backups: false
+
+influxdb_local_bak_dir: /opt/influxdb_bak_local/backups
+influxdb_bak_scripts_dir: /opt/influxdb_bak_local/backup_scripts
+influxdb_filer_bak_dir: /backup/influxdb
+
+influxdb_lockfile_backup: /tmp/influx_backup
+influxdb_lockfile_sync: /tmp/influx_sync
+
+influxdb_bak_scripts:
+  - src: opt.influxdb_bak_local.backup_scripts.backup_influxdb.sh.j2
+    dest: "{{ influxdb_bak_scripts_dir }}/backup_influxdb.sh"
+  - src: opt.influxdb_bak_local.backup_scripts.sync_influxdb_backup.sh.j2
+    dest: "{{ influxdb_bak_scripts_dir }}/sync_influxdb_backup.sh"
+
+influxdb_bak_crons:
+  - name: backup_influxdb
+    minute: 0
+    hour: 0
+    user: influxdb
+    job: "{{ influxdb_bak_scripts_dir }}/backup_influxdb.sh"
+    cronfile: influxdb_crons
+  - name: remove old local backups
+    minute: 0
+    hour: 3
+    user: influxdb
+    job: find {{ influxdb_local_bak_dir }}/ -type d -ctime +3 -delete
+    cronfile: influxdb_crons
+  - name: remove old filer backups
+    minute: 0
+    hour: 3
+    user: influxdb
+    job: find {{ influxdb_filer_bak_dir }}/ -type d -ctime +3 -delete
+    cronfile: influxdb_crons
+  - name: sync_influxdb
+    minute: 0
+    hour: 2
+    user: influxdb
+    job: "{{ influxdb_bak_scripts_dir }}/sync_influxdb_backup.sh"
+    cronfile: influxdb_crons
