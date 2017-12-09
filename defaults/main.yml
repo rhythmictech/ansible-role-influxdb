@@ -43,7 +43,7 @@ influxdb_enable_backups: false
 
 influxdb_local_bak_dir: /opt/influxdb_bak_local/backups
 influxdb_bak_scripts_dir: /opt/influxdb_bak_local/backup_scripts
-influxdb_filer_bak_dir: /backup
+influxdb_filer_bak_dir: /backup/influxdb
 
 influxdb_lockfile_backup: /tmp/influx_backup
 influxdb_lockfile_sync: /tmp/influx_sync
