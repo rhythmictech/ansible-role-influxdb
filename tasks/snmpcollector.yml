@@ -1,0 +1,65 @@
+---
+
+- name: ensure snmpcollector packages are installed
+  yum: name="{{ influxdb_snmpcollector_packages }}" state=present
+  tags: ['influxdb', 'influxdb_snmpcollector']
+
+- name: create snmpcollector dirs
+  file: path="{{ item }}" state=directory owner=snmpcol group=snmpcol mode=0700
+  with_items:
+    - "{{ influxdb_snmpcollector_base_dir }}"
+    - "{{ influxdb_snmpcollector_data_dir }}"
+    - "{{ influxdb_snmpcollector_log_dir }}"
+  tags: ['influxdb', 'influxdb_snmpcollector']
+
+- name: ensure a snmpcollector mysql db exists
+  mysql_db:
+    encoding: "{{ influxdb_snmpcollector_mysql_db_encoding | default(omit) }}"
+    login_host: "{{ influxdb_snmpcollector_mysql_host | default(omit) }}"
+    login_port: "{{ influxdb_snmpcollector_mysql_port | default(omit) }}"
+    login_unix_socket: "{{ influxdb_snmpcollector_mysql_unix_socket | default(omit) }}"
+    login_user: "{{ influxdb_snmpcollector_mysql_login_user | default(omit) }}"
+    login_password: "{{ influxdb_snmpcollector_mysql_login_password | default(omit) }}"
+    name: "{{ influxdb_snmpcollector_mysql_db_name }}"
+    state: present
+  when: influxdb_snmpcollector_mysql_create_db
+  register: influxdb_snmpcollector_db_created
+  tags: ['influxdb', 'influxdb_snmpcollector']
+
+- name: ensure a snmpcollector mysql user exists
+  mysql_user:
+    login_host: "{{ influxdb_snmpcollector_mysql_host | default(omit) }}"
+    login_port: "{{ influxdb_snmpcollector_mysql_port | default(omit) }}"
+    login_unix_socket: "{{ influxdb_snmpcollector_mysql_unix_socket | default(omit) }}"
+    login_user: "{{ influxdb_snmpcollector_mysql_login_user | default(omit) }}"
+    login_password: "{{ influxdb_snmpcollector_mysql_login_password | default(omit) }}"
+    name: "{{ influxdb_snmpcollector_mysql_user_name }}"
+    password: "{{ influxdb_snmpcollector_mysql_user_password }}"
+    priv: "{{ influxdb_snmpcollector_mysql_user_priv }}"
+    state: present
+  when: influxdb_snmpcollector_mysql_create_user
+  tags: ['influxdb', 'influxdb_snmpcollector']
+
+- name: place snmpcollector config
+  template:
+    src: etc.snmpcollector.config.toml.j2
+    dest: "/etc/snmpcollector/config.toml"
+    owner: root
+    group: snmpcol
+    mode: 0640
+  tags: ['influxdb', 'influxdb_snmpcollector']
+
+- name: place snmpcollector sysinit config
+  template:
+    src: etc.sysconfig.snmpcollector.j2
+    dest: /etc/sysconfig/snmpcollector
+    owner: root
+    group: snmpcol
+    mode: 06750
+  tags: ['influxdb', 'influxdb_snmpcollector']
+
+- name: ensure snmpcollector is started and enabled
+  service: name=snmpcollector state=started enabled=yes
+  when: influxdb_install_snmpcollector
+  tags: ['influxdb', 'influxdb_snmpcollector']
+

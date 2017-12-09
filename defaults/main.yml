@@ -1,22 +1,49 @@
 ---
 
+#################################################
+# Base Role Settings
+#################################################
+
 
 # By default, we do not pin the version. You probably should.
 # Be sure to prefix the version with a "-". e.g.:
 # influxdb_version: -0.9.4.2-1
 influxdb_version:
 
-influxdb_base_dir: /opt/influxdb_base
-
-influxdb_user: influxdb
-
 influxdb_db_name: influxdb_stats
 
+influxdb_use_public_repos: true
+
+# Chronograf is needed for web-based administration of influx
+influxdb_install_chronograf: true
+
+# SNMP Collector is needed for SNMP collection
+influxdb_install_snmpcollector: true
+
+#################################################
+# LDAP / Authentication settings
+#################################################
+
+# Generally you want to use LDAP authentication with influxdb
+influxdb_use_ldap: true
+
+influxdb_ldap_url:
+
+influxdb_ldap_auth_realm: "{{ company }} influxdb"
+influxdb_ldap_bind_dn:
+influxdb_ldap_bind_pw:
+influxdb_ldap_search_base:
+
+influxdb_ldap_uid_attr: uid
+
+#################################################
+# Backup Settings
+#################################################
 influxdb_enable_backups: false
 
 influxdb_local_bak_dir: /opt/influxdb_bak_local/backups
 influxdb_bak_scripts_dir: /opt/influxdb_bak_local/backup_scripts
-influxdb_filer_bak_dir: /backup/influxdb
+influxdb_filer_bak_dir: /backup
 
 influxdb_lockfile_backup: /tmp/influx_backup
 influxdb_lockfile_sync: /tmp/influx_sync
@@ -52,3 +79,71 @@ influxdb_bak_crons:
     user: influxdb
     job: "{{ influxdb_bak_scripts_dir }}/sync_influxdb_backup.sh"
     cronfile: influxdb_crons
+
+#################################################
+# Misc Role Settings
+#################################################
+
+influxdb_apache_logs: true
+
+influxdb_packages:
+  - "influxdb{{ influxdb_version }}"
+  - mod_ssl
+  - mod_ldap
+  - collectd
+
+influxdb_base_dir: /opt/influxdb_base
+
+influxdb_user: influxdb
+
+#################################################
+# snmpcollector Settings
+#################################################
+
+influxdb_snmpcollector_packages:
+  - git
+  - golang
+  - nodejs
+  - MySQL-python
+
+# valid values: panic,fatal,error,warn,info,debug
+influxdb_snmpcollector_log_level: warn
+
+influxdb_snmpcollector_base_dir: /opt/snmpcollector
+
+influxdb_snmpcollector_data_dir: "{{ influxdb_snmpcollector_base_dir }}/data"
+influxdb_snmpcollector_log_dir: "{{ influxdb_snmpcollector_base_dir }}/log"
+
+# by default, sqllite will be used. since sqllite is not backed up
+# that is not recommended
+influxdb_snmpcollector_use_mysql: false
+
+influxdb_snmpcollector_mysql_db_encoding: utf8
+
+# This role can automatically create a database for you.
+# To do so, you need to specify a login user that has authority
+# to create databases and users
+
+influxdb_snmpcollector_mysql_create_db: false
+
+influxdb_snmpcollector_mysql_db_name: snmpcollector
+
+influxdb_snmpcollector_mysql_create_user: false
+
+influxdb_snmpcollector_mysql_user_name: snmpcollector
+influxdb_snmpcollector_mysql_user_password:
+influxdb_snmpcollector_mysql_user_priv: "*.*:ALL"
+
+influxdb_snmpcollector_mysql_unix_socket: /var/lib/mysql.sock
+influxdb_snmpcollector_mysql_host: localhost
+influxdb_snmpcollector_mysql_port: 3306
+
+# MySQL login info
+influxdb_snmpcollector_mysql_login_user: root
+influxdb_snmpcollector_mysql_login_password:
+
+stdbase_nfs_mounts:
+  - src: 10.220.135.11:/mnt/vg_filer_attached1/rhythmic-ops-backups/influxdb/
+    name: /backup
+    opts: vers=3,hard,rw,intr,bg,rsize=131072,wsize=131072,noacl
+    state: mounted

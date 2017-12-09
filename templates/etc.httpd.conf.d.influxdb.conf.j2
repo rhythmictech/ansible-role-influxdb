@@ -1,0 +1,125 @@
+# {{ ansible_managed }}
+
+LoadModule proxy_module modules/mod_proxy.so
+LoadModule proxy_http_module modules/mod_proxy_http.so
+LoadModule ldap_module modules/mod_ldap.so
+LoadModule authnz_ldap_module modules/mod_authnz_ldap.so
+LoadModule authz_user_module modules/mod_authz_user.so
+
+<VirtualHost {{ ansible_fqdn }}:443>
+    ServerName {{ influxdb_base_url }}
+
+{% if influxdb_use_ldap|default(False) %}
+    <Location "/">
+        AuthBasicProvider ldap
+        AuthType Basic
+
+        AuthName "{{ influxdb_ldap_auth_realm }}"
+        AuthLDAPURL "{{ influxdb_ldap_url }}/{{ influxdb_ldap_search_base }}?{{ influxdb_ldap_uid_attr }}?sub?(objectClass=inetorgperson)" NONE
+        AuthLDAPBindDN "{{ influxdb_ldap_bind_dn }}"
+        AuthLDAPBindPassword "{{ influxdb_ldap_bind_pw }}"
+
+        Require valid-user
+        Require all granted
+
+    </Location>
+{% endif %}
+{% if influxdb_apache_logs %}
+    CustomLog logs/influxdb_access_log combined
+    ErrorLog logs/influxdb_error_log
+{% endif %}
+
+{% if influxdb_include_hsts|default(False) %}
+    Header always set Strict-Transport-Security "max-age=15768000"
+{% endif %}
+    Header always append X-Frame-Options SAMEORIGIN
+
+    SSLEngine on
+    SSLProtocol +ALL -sslv3 -sslv2 -tlsv1 -tlsv1.1
+    SSLInsecureRenegotiation Off
+    SSLCipherSuite ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256
+    SSLHonorCipherOrder     on
+    SSLCompression          off
+
+    SSLCertificateFile /etc/pki/tls/certs/influxdb.crt
+    SSLCertificateKeyFile /etc/pki/tls/private/influxdb.key
+{% if influxdb_ssl_use_chain|default(False) %}
+    SSLCACertificateFile /etc/pki/tls/certs/influxdb-bundle.crt
+{% endif %}
+
+    SetEnvIf User-Agent ".*MSIE.*" \
+        nokeepalive ssl-unclean-shutdown \
+        downgrade-1.0 force-response-1.0
+
+    ProxyRequests off
+    ProxyPreserveHost on
+
+{% if influxdb_install_chronograf|default(False) %}
+    # Chronograf admin config
+    ProxyPass /admin/ http://localhost:8888/
+    ProxyPassReverse /admin/ http://localhost:8888/
+{% endif %}
+
+</VirtualHost>
+
+{% if influxdb_install_snmpcollector|default(False) %}
+# The current version of snmpcollector cannot run in a relative path
+# so we need a separate vhost.
+
+Listen 9443
+<VirtualHost {{ ansible_fqdn }}:9443>
+    ServerName {{ influxdb_base_url }}
+
+{% if influxdb_use_ldap|default(False) %}
+    <Location "/">
+        AuthBasicProvider ldap
+        AuthType Basic
+
+        AuthName "{{ influxdb_ldap_auth_realm }}"
+        AuthLDAPURL "{{ influxdb_ldap_url }}/{{ influxdb_ldap_search_base }}?{{ influxdb_ldap_uid_attr }}?sub?(objectClass=inetorgperson)" NONE
+        AuthLDAPBindDN "{{ influxdb_ldap_bind_dn }}"
+        AuthLDAPBindPassword "{{ influxdb_ldap_bind_pw }}"
+
+
+        Require valid-user
+        Require all granted
+
+    </Location>
+{% endif %}
+
+{% if influxdb_apache_logs %}
+    CustomLog logs/influxdb_access_log combined
+    ErrorLog logs/influxdb_error_log
+{% endif %}
+
+{% if influxdb_include_hsts|default(False) %}
+    Header always set Strict-Transport-Security "max-age=15768000"
+{% endif %}
+    Header always append X-Frame-Options SAMEORIGIN
+
+    SSLEngine on
+    SSLProtocol +ALL -sslv3 -sslv2 -tlsv1 -tlsv1.1
+    SSLInsecureRenegotiation Off
+    SSLCipherSuite ECDHE-ECDSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-GCM-SHA384:ECDHE-ECDSA-CHACHA20-POLY1305:ECDHE-RSA-CHACHA20-POLY1305:ECDHE-ECDSA-AES128-GCM-SHA256:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-ECDSA-AES256-SHA384:ECDHE-RSA-AES256-SHA384:ECDHE-ECDSA-AES128-SHA256:ECDHE-RSA-AES128-SHA256
+    SSLHonorCipherOrder     on
+    SSLCompression          off
+
+    SSLCertificateFile /etc/pki/tls/certs/influxdb.crt
+    SSLCertificateKeyFile /etc/pki/tls/private/influxdb.key
+{% if influxdb_ssl_use_chain|default(False) %}
+    SSLCACertificateFile /etc/pki/tls/certs/influxdb-bundle.crt
+{% endif %}
+
+    SetEnvIf User-Agent ".*MSIE.*" \
+        nokeepalive ssl-unclean-shutdown \
+        downgrade-1.0 force-response-1.0
+
+    ProxyRequests off
+    ProxyPreserveHost on
+
+    ProxyPass / http://localhost:8090/
+    ProxyPassReverse / http://localhost:8090/
+
+</VirtualHost>
+
+{% endif %}

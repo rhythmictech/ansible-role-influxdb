@@ -1,0 +1,19 @@
+# {{ ansible_managed }}
+
+SNMPCOL_USER=snmpcol
+
+SNMPCOL_GROUP=snmpcol
+
+SNMPCOL_HOME=/usr/share/snmpcollector
+
+LOG_DIR={{ influxdb_snmpcollector_log_dir }}
+
+DATA_DIR={{ influxdb_snmpcollector_data_dir }}
+
+MAX_OPEN_FILES=10000
+
+CONF_DIR=/etc/snmpcollector
+
+CONF_FILE=/etc/snmpcollector/config.toml
+
+RESTART_ON_UPGRADE=false
