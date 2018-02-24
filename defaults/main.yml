@@ -20,6 +20,17 @@ influxdb_install_chronograf: true
 # SNMP Collector is needed for SNMP collection
 influxdb_install_snmpcollector: true
 
+# Whether or not to use encryption for collectd
+influxdb_collectd_encrypt: false
+
+# Username/passwords to use for collectd encryption. Influx automatically
+# determines which password to use from the payload. Example:
+#influxdb_collectd_authfile_users:
+#  - name: user
+#    password: password
+
+influxdb_collectd_authfile_users:
+
 #################################################
 # LDAP / Authentication settings
 #################################################

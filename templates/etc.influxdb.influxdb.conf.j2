@@ -61,6 +61,11 @@ bind-address = ":8088"
   batch-pending = 5
   batch-timeout = "1s"
 
+{% if influxdb_collectd_encrypt|default(false) %}
+  security-level = "encrypt"
+  auth-file = "/etc/influxdb/collectd_auth_file"
+{% endif %}
+
 [continuous_queries]
   log-enabled = true
   enabled = true

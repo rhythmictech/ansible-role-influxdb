@@ -134,6 +134,16 @@
   when: influxdb_install_chronograf
   tags: ['influxdb']
 
+- name: place collectd auth file if necessary
+  template:
+    src: "etc.influxdb.collectd_auth_file.j2"
+    dest: "/etc/influxdb/collectd_auth_file"
+    owner: root
+    group: influxdb
+    mode: 0640
+  when: influxdb_collectd_authfile_users|default(False)
+  tags: ['influxdb']
+
 #- name: ensure snmpcollector is started and enabled
 #  service: name=snmpcollector state=started enabled=yes
 #  when: influxdb_install_snmpcollector

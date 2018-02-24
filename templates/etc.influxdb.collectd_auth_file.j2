@@ -1,0 +1,3 @@
+{% for user in influxdb_collectd_authfile_users %}
+{{ user.name }}: {{ user.password }}
+{% endfor %}
