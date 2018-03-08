@@ -1,7 +1,11 @@
 ---
 
-- name: ensure snmpcollector packages are installed
-  command: "yum install --disableexcludes='all' {{ influxdb_snmpcollector_packages }}"
+- name: ensure snmpcollector dependency packages are installed
+  command: "yum install --disableexcludes='all' -y {{ influxdb_snmpcollector_packages|join(' ') }}"
+  tags: ['influxdb', 'influxdb_snmpcollector']
+
+- name: ensure snmpcollector package is installed
+  yum: name=http://snmpcollector-rel.s3.amazonaws.com/builds/snmpcollector-0.7.3-1.x86_64.rpm state=present
   tags: ['influxdb', 'influxdb_snmpcollector']
 
 - name: create snmpcollector dirs
