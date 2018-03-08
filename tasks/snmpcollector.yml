@@ -1,7 +1,7 @@
 ---
 
 - name: ensure snmpcollector packages are installed
-  yum: name="{{ influxdb_snmpcollector_packages }}" state=present
+  command: "yum install --disableexcludes='all' {{ influxdb_snmpcollector_packages }}"
   tags: ['influxdb', 'influxdb_snmpcollector']
 
 - name: create snmpcollector dirs
