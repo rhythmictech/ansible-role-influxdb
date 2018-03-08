@@ -1,8 +1,13 @@
 # {{ ansible_managed }}
 
+LoadModule ssl_module modules/mod_ssl.so
+{% if ansible_distribution_major_version == '6' %}
 Listen 443 https
+{% endif %}
 
+{% if ansible_distribution_major_version == '7' %}
 SSLPassPhraseDialog exec:/usr/libexec/httpd-ssl-pass-dialog
+{% endif %}
 
 SSLSessionCache         shmcb:/run/httpd/sslcache(512000)
 SSLSessionCacheTimeout  300
