@@ -1,3 +1,6 @@
+v0.0.5
+---------------------------
+Removing support for cent6, as snmpcollector does not support cent6
 
 v0.0.4
 ---------------------------
