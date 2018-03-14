@@ -1,0 +1,7 @@
+#!/bin/bash
+# {{ ansible_managed }}
+
+{% for database in influxdb_backup_databases %}
+/usr/bin/influxd backup -database {{ database }} {{ influxdb_backup_dir }}/{{ database }}/{{ database }}-`date +"%m-%d-%y"`
+{% endfor %}
+

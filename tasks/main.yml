@@ -91,21 +91,19 @@
     mode: 0750
     state: directory
   with_items:
-    - "{{ influxdb_local_bak_dir }}"
-    - "{{ influxdb_filer_bak_dir }}"
-    - "{{ influxdb_bak_scripts_dir }}"
-  when: influxdb_enable_backups|default(False)
+    - "{{ influxdb_backup_dir }}"
+    - /opt/influxdb/scripts
+  when: influxdb_backup_enabled|default(False)
   tags: ['influxdb']
 
 - name: place backup scripts
   template:
-    src: "{{ item.src }}"
-    dest: "{{ item.dest }}"
+    src: "opt.influxdb.scripts.backup_influxdb.sh.j2"
+    dest: "/opt/influxdb/scripts/backup_influxdb.sh"
     owner: "{{ influxdb_user }}"
     group: "{{ influxdb_user }}"
     mode: 0700
-  with_items: "{{ influxdb_bak_scripts }}"
-  when: influxdb_enable_backups|default(False)
+  when: influxdb_backup_enabled|default(False)
   tags: ['influxdb']
 
 - name: enable backup cron
@@ -116,8 +114,8 @@
     user: "{{ item.user }}"
     job: "{{ item.job }}"
     cron_file: "{{ item.cronfile }}"
-  with_items: "{{ influxdb_bak_crons }}"
-  when: influxdb_enable_backups|default(False)
+  with_items: "{{ influxdb_backup_crons }}"
+  when: influxdb_backup_enabled|default(False)
   tags: ['influxdb']
 
 - name: configure snmpcollector

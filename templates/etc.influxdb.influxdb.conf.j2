@@ -51,10 +51,11 @@ bind-address = ":8088"
   pprof-enabled = false
   max-row-limit = 10000
 
+{% if influxdb_collectd_enabled|default(False) %}
 [[collectd]]
   enabled = true
   bind-address = ":25826"
-  database = "{{ influxdb_db_name }}"
+  database = "{{ influxdb_collectd_database }}"
   typesdb = "/usr/share/collectd/types.db"
 
   batch-size = 1000
@@ -64,6 +65,7 @@ bind-address = ":8088"
 {% if influxdb_collectd_encrypt|default(false) %}
   security-level = "encrypt"
   auth-file = "/etc/influxdb/collectd_auth_file"
+{% endif %}
 {% endif %}
 
 [continuous_queries]

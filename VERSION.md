@@ -1,3 +1,12 @@
+v0.0.6
+---------------------------
+Significant overhaul of the backup process. Before we had unnecessary support
+for backing up to an alternate location and syncing to a backup target,
+but this isn't appropriate to handle in the role itself. The new process is
+much simpler.
+
+Also made changes to the collectd receiver, which is disabled by default now.
+
 v0.0.5
 ---------------------------
 Removing support for cent6, as snmpcollector does not support cent6

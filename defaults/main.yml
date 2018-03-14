@@ -10,7 +10,6 @@
 # influxdb_version: -0.9.4.2-1
 influxdb_version:
 
-influxdb_db_name: influxdb_stats
 
 influxdb_use_public_repos: true
 
@@ -19,6 +18,14 @@ influxdb_install_chronograf: true
 
 # SNMP Collector is needed for SNMP collection
 influxdb_install_snmpcollector: true
+
+#################################################
+# Collectd settings
+#################################################
+influxdb_collectd_enabled: false
+
+# Database that collectd stats should write to
+influxdb_collectd_database: influxdb_stats
 
 # Whether or not to use encryption for collectd
 influxdb_collectd_encrypt: false
@@ -50,45 +57,26 @@ influxdb_ldap_uid_attr: uid
 #################################################
 # Backup Settings
 #################################################
-influxdb_enable_backups: false
 
-influxdb_local_bak_dir: /opt/influxdb_bak_local/backups
-influxdb_bak_scripts_dir: /opt/influxdb_bak_local/backup_scripts
-influxdb_filer_bak_dir: /backup/influxdb
+influxdb_backup_enabled: false
+influxdb_backup_dir: /backup/influxdb
 
-influxdb_lockfile_backup: /tmp/influx_backup
-influxdb_lockfile_sync: /tmp/influx_sync
+influxdb_backup_databases:
+  - "_internal"
+  - "influxdb_stats"
 
-influxdb_bak_scripts:
-  - src: opt.influxdb_bak_local.backup_scripts.backup_influxdb.sh.j2
-    dest: "{{ influxdb_bak_scripts_dir }}/backup_influxdb.sh"
-  - src: opt.influxdb_bak_local.backup_scripts.sync_influxdb_backup.sh.j2
-    dest: "{{ influxdb_bak_scripts_dir }}/sync_influxdb_backup.sh"
-
-influxdb_bak_crons:
+influxdb_backup_crons:
   - name: backup_influxdb
     minute: 0
     hour: 0
     user: influxdb
-    job: "{{ influxdb_bak_scripts_dir }}/backup_influxdb.sh"
+    job: "/opt/influxdb/scripts/backup_influxdb.sh"
     cronfile: influxdb_crons
   - name: remove old local backups
     minute: 0
     hour: 3
     user: influxdb
-    job: find {{ influxdb_local_bak_dir }}/ -type d -ctime +3 -delete
-    cronfile: influxdb_crons
-  - name: remove old filer backups
-    minute: 0
-    hour: 3
-    user: influxdb
-    job: find {{ influxdb_filer_bak_dir }}/ -type d -ctime +3 -delete
-    cronfile: influxdb_crons
-  - name: sync_influxdb
-    minute: 0
-    hour: 2
-    user: influxdb
-    job: "{{ influxdb_bak_scripts_dir }}/sync_influxdb_backup.sh"
+    job: find {{ influxdb_backup_dir }}/ -type d -ctime +3 -delete
     cronfile: influxdb_crons
 
 #################################################
