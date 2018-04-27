@@ -1,3 +1,7 @@
+v0.0.7
+---------------------------
+Updated backup script to use temp dir for directories and to create a tar.
+
 v0.0.6
 ---------------------------
 Significant overhaul of the backup process. Before we had unnecessary support
