@@ -1,7 +1,12 @@
 #!/bin/bash
 # {{ ansible_managed }}
 
+mkdir -p {{ influxdb_backup_dir }}/tmp
 {% for database in influxdb_backup_databases %}
-/usr/bin/influxd backup -database {{ database }} {{ influxdb_backup_dir }}/{{ database }}/{{ database }}-`date +"%m-%d-%y"`
+
+mkdir -p {{ influxdb_backup_dir }}/{{ database }}
+/usr/bin/influxd backup -database {{ database }} {{ influxdb_backup_dir }}/tmp/{{ database }}-`date +"%m-%d-%y"`
+/bin/tar -zcf /backup/influxdb/{{ database }}/{{ database }}-`date +"%m-%d-%y"`.tar.gz /backup/influxdb/tmp/{{ database }}-`date +"%m-%d-%y"`
+/bin/rm -rf /backup/influxdb/tmp/{{ database }}-`date +"%m-%d-%y"`
 {% endfor %}
 
