@@ -1,3 +1,7 @@
+v0.0.9
+---------------------------
+Forgot the delete tag on the backup cleanup cron. 
+
 v0.0.8
 ---------------------------
 Updated cleanup cron to correctly find and remove old backups.
