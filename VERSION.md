@@ -1,3 +1,7 @@
+v0.0.8
+---------------------------
+Updated cleanup cron to correctly find and remove old backups.
+
 v0.0.7
 ---------------------------
 Updated backup script to use temp dir for directories and to create a tar.
