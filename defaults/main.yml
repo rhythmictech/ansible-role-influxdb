@@ -76,7 +76,7 @@ influxdb_backup_crons:
     minute: 0
     hour: 3
     user: influxdb
-    job: find {{ influxdb_backup_dir }}/ -type d -ctime +3 -delete
+    job: find {{ influxdb_backup_dir }}/ -name "*.tar.gz" -ctime +3
     cronfile: influxdb_crons
 
 #################################################
