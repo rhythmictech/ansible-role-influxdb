@@ -60,6 +60,7 @@ influxdb_ldap_uid_attr: uid
 
 influxdb_backup_enabled: false
 influxdb_backup_dir: /backup/influxdb
+influxdb_backup_snitch:
 
 influxdb_backup_databases:
   - "_internal"
@@ -70,7 +71,7 @@ influxdb_backup_crons:
     minute: 0
     hour: 0
     user: influxdb
-    job: "/opt/influxdb/scripts/backup_influxdb.sh"
+    job: "/opt/influxdb/scripts/backup_influxdb.sh" {{ influxdb_backup_snitch }}
     cronfile: influxdb_crons
   - name: remove old local backups
     minute: 0
