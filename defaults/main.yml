@@ -73,12 +73,11 @@ influxdb_backup_crons:
     user: influxdb
     job: "/opt/influxdb/scripts/backup_influxdb.sh"
     cronfile: influxdb_cron
-  - name: backup_influxdb
+  - name: backup_influxdb_snitch
     minute: 0
     hour: 0
     user: influxdb
     job: "/opt/influxdb/scripts/backup_influxdb.sh && curl {{ influxdb_backup_snitch }}"
-    when: influxdb_backup_snitch is defined
     cronfile: influxdb_cron
   - name: remove old local backups
     minute: 0
