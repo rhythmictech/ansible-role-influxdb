@@ -115,7 +115,23 @@
     job: "{{ item.job }}"
     cron_file: "{{ item.cronfile }}"
   with_items: "{{ influxdb_backup_crons }}"
-  when: influxdb_backup_enabled|default(False)
+  when: 
+  	- influxdb_backup_enabled|default(False)
+    - influxdb_backup_snitch is not defined
+  tags: ['influxdb']
+
+- name: enable snitch backup cron
+  cron:
+    name: "{{ item.name }}"
+    minute: "{{ item.minute }}"
+    hour: "{{ item.hour }}"
+    user: "{{ item.user }}"
+    job: "{{ item.job }}"
+    cron_file: "{{ item.cronfile }}"
+  with_items: "{{ influxdb_snitch_backup_crons }}"
+  when: 
+  	- influxdb_backup_enabled|default(False)
+  	- influxdb_backup_snitch is defined
   tags: ['influxdb']
 
 - name: configure snmpcollector
