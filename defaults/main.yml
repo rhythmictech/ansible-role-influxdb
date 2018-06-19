@@ -73,6 +73,14 @@ influxdb_backup_crons:
     user: influxdb
     job: "/opt/influxdb/scripts/backup_influxdb.sh"
     cronfile: influxdb_cron
+  - name: remove old local backups
+    minute: 0
+    hour: 3
+    user: influxdb
+    job: find {{ influxdb_backup_dir }}/ -name "*.tar.gz" -ctime +3 -delete
+    cronfile: influxdb_crons
+    
+influxdb_snitch_backup_crons:
   - name: backup_influxdb_snitch
     minute: 0
     hour: 0
