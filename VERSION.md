@@ -1,3 +1,7 @@
+v0.1.0
+---------------------------
+Variable for Backup Snitch. 
+
 v0.0.9
 ---------------------------
 Forgot the delete tag on the backup cleanup cron. 
