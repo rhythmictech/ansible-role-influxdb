@@ -121,7 +121,7 @@ influxdb_snmpcollector_packages:
   - MySQL-python
 
 # valid values: panic,fatal,error,warn,info,debug
-influxdb_snmpcollector_log_level: warn
+influxdb_snmpcollector_log_level: error
 
 influxdb_snmpcollector_base_dir: /opt/snmpcollector
 
