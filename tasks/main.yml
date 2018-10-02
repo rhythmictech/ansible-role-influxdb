@@ -163,3 +163,6 @@
 #  when: influxdb_install_snmpcollector
 #  tags: ['influxdb']
 
+ name: Place snmpcollector logrotate configuration
+  copy: src=etc.logrotate.d.influxdb dest="/etc/logrotate.d/snmpcollector owner=root group=root mode=0644"
+  tags: ['influxdb', 'logrotate', 'influxdb_snmpcollector']
