@@ -5,4 +5,5 @@
     dateext
     rotate 6
     compress
+    minsize 300M
 }
