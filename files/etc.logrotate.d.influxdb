@@ -1,0 +1,9 @@
+/opt/snmpcollector/log/*.log {
+    missingok
+    monthly
+    copytruncate
+    dateext
+    rotate 6
+    compress
+    minsize 300M
+}
