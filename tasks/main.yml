@@ -82,7 +82,7 @@
   when: influxdb_ssl_use_chain|default(false)
   notify: reload httpd
   tags: ['influxdb', 'certificates']
-  
+
 - name: ensure backup dirs are present
   file:
     dest: "{{ item }}"
@@ -115,8 +115,8 @@
     job: "{{ item.job }}"
     cron_file: "{{ item.cronfile }}"
   with_items: "{{ influxdb_backup_crons }}"
-  when: 
-  	- influxdb_backup_enabled|default(False)
+  when:
+    - influxdb_backup_enabled|default(False)
     - influxdb_backup_snitch is not defined
   tags: ['influxdb']
 
@@ -129,9 +129,9 @@
     job: "{{ item.job }}"
     cron_file: "{{ item.cronfile }}"
   with_items: "{{ influxdb_snitch_backup_crons }}"
-  when: 
-  	- influxdb_backup_enabled|default(False)
-  	- influxdb_backup_snitch is defined
+  when:
+    - influxdb_backup_enabled|default(False)
+    - influxdb_backup_snitch is not defined
   tags: ['influxdb']
 
 - name: configure snmpcollector
@@ -163,6 +163,6 @@
 #  when: influxdb_install_snmpcollector
 #  tags: ['influxdb']
 
- name: Place snmpcollector logrotate configuration
+- name: Place snmpcollector logrotate configuration
   copy: src=etc.logrotate.d.influxdb dest=/etc/logrotate.d/snmpcollector owner=root group=root mode=0644
   tags: ['influxdb', 'logrotate', 'influxdb_snmpcollector']
