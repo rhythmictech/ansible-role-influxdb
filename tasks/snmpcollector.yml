@@ -61,6 +61,15 @@
     group: snmpcol
     mode: 06750
   tags: ['influxdb', 'influxdb_snmpcollector']
+  
+- name: ensure the logrotate config is in place
+  template:
+    src: "etc.logrotate.d.snmp.j2"
+    dest: "/etc/logrotate.d/snmp"
+    owner: root
+    group: root
+    mode: 0640
+  tags: ['influxdb', 'influxdb_snmpcollector']
 
 - name: ensure snmpcollector is started and enabled
   service: name=snmpcollector state=started enabled=yes
