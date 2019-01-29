@@ -1,3 +1,7 @@
+v0.1.1
+---------------------------
+Logrotate.d configured for snmp collector.
+
 v0.1.0
 ---------------------------
 Variable for Backup Snitch. 
