@@ -1,0 +1,8 @@
+{{ influxdb_snmpcollector_log_dir }}/*.log {
+    daily
+    rotate 7
+    missingok
+    dateext
+    copytruncate
+    compress
+}
