@@ -1,6 +1,7 @@
 {{ influxdb_snmpcollector_log_dir }}/*.log {
     daily
     rotate 7
+    maxsize 100M
     missingok
     dateext
     copytruncate
