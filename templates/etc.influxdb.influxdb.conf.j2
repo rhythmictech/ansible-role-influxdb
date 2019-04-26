@@ -51,6 +51,11 @@ bind-address = ":8088"
   pprof-enabled = false
   max-row-limit = 10000
 
+[logging]
+  format = "auto"
+  level = "error"
+  suppress-logo = false
+
 {% if influxdb_collectd_enabled|default(False) %}
 [[collectd]]
   enabled = true
