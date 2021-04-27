@@ -56,8 +56,8 @@ LoadModule authz_user_module modules/mod_authz_user.so
 
 {% if influxdb_install_chronograf|default(False) %}
     # Chronograf admin config
-    ProxyPass /admin/ http://localhost:8888/
-    ProxyPassReverse /admin/ http://localhost:8888/
+    ProxyPass /admin/ http://localhost:8888/admin/
+    ProxyPassReverse /admin/ http://localhost:8888/admin/
 {% endif %}
 
 </VirtualHost>
