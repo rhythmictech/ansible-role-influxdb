@@ -70,16 +70,20 @@
 - name: ensure influxdb cert is in place
   copy: content="{{ influxdb_ssl_cert }}" dest="/etc/pki/tls/certs/influxdb.crt" mode=0640 owner=root group=root
   notify: reload httpd
+  when: influxdb_use_ssl
   tags: ['influxdb', 'certificates']
 
 - name: ensure influxdb key is in place
   copy: content="{{ influxdb_ssl_key }}" dest="/etc/pki/tls/private/influxdb.key" mode=0640 owner=root group=root
   notify: reload httpd
+  when: influxdb_use_ssl
   tags: ['influxdb', 'certificates']
 
 - name: ensure influxdb cert chain is in place
   copy: content="{{ influxdb_ssl_chain }}" dest="/etc/pki/tls/certs/influxdb-bundle.crt" mode=0640 owner=root group=root
-  when: influxdb_ssl_use_chain|default(false)
+  when: 
+    - influxdb_use_ssl
+    - influxdb_ssl_use_chain|default(false)
   notify: reload httpd
   tags: ['influxdb', 'certificates']
 
@@ -135,7 +139,7 @@
   tags: ['influxdb']
 
 - name: configure snmpcollector
-  include: snmpcollector.yml
+  include_tasks: snmpcollector.yml
   when: influxdb_install_snmpcollector
   tags: ['influxdb', 'influxdb_snmpcollector']
 

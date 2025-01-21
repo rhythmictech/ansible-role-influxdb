@@ -5,8 +5,11 @@ LoadModule proxy_http_module modules/mod_proxy_http.so
 LoadModule ldap_module modules/mod_ldap.so
 LoadModule authnz_ldap_module modules/mod_authnz_ldap.so
 LoadModule authz_user_module modules/mod_authz_user.so
-
+{% if influxdb_use_ssl %}
 <VirtualHost {{ ansible_fqdn }}:443>
+{% else %}
+<VirtualHost {{ ansible_fqdn }}:80>
+{% endif %}
     ServerName {{ influxdb_base_url }}
 
 {% if influxdb_use_ldap|default(False) %}
@@ -28,7 +31,7 @@ LoadModule authz_user_module modules/mod_authz_user.so
     CustomLog logs/influxdb_access_log combined
     ErrorLog logs/influxdb_error_log
 {% endif %}
-
+{% if influxdb_use_ssl %}
 {% if influxdb_include_hsts|default(False) %}
     Header always set Strict-Transport-Security "max-age=15768000"
 {% endif %}
@@ -50,7 +53,7 @@ LoadModule authz_user_module modules/mod_authz_user.so
     SetEnvIf User-Agent ".*MSIE.*" \
         nokeepalive ssl-unclean-shutdown \
         downgrade-1.0 force-response-1.0
-
+{% endif %}
     ProxyRequests off
     ProxyPreserveHost on
 
@@ -65,9 +68,13 @@ LoadModule authz_user_module modules/mod_authz_user.so
 {% if influxdb_install_snmpcollector|default(False) %}
 # The current version of snmpcollector cannot run in a relative path
 # so we need a separate vhost.
-
+{% if influxdb_use_ssl %}
 Listen 9443
 <VirtualHost {{ ansible_fqdn }}:9443>
+{% else %}
+Listen 8099
+<VirtualHost {{ ansible_fqdn }}:8099>
+{% endif %}
     ServerName {{ influxdb_base_url }}
 
 {% if influxdb_use_ldap|default(False) %}
@@ -91,7 +98,7 @@ Listen 9443
     CustomLog logs/influxdb_access_log combined
     ErrorLog logs/influxdb_error_log
 {% endif %}
-
+{% if influxdb_use_ssl %}
 {% if influxdb_include_hsts|default(False) %}
     Header always set Strict-Transport-Security "max-age=15768000"
 {% endif %}
@@ -113,7 +120,7 @@ Listen 9443
     SetEnvIf User-Agent ".*MSIE.*" \
         nokeepalive ssl-unclean-shutdown \
         downgrade-1.0 force-response-1.0
-
+{% endif %}
     ProxyRequests off
     ProxyPreserveHost on
 

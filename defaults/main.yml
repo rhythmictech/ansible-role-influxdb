@@ -97,6 +97,7 @@ influxdb_snitch_backup_crons:
 #################################################
 # Misc Role Settings
 #################################################
+influxdb_use_ssl: true
 
 influxdb_apache_logs: true
 
